@@ -1,0 +1,1 @@
+# blog-docker-service-tests
