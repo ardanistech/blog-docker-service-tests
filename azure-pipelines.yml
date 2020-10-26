@@ -19,6 +19,6 @@ steps:
     containerregistrytype: 'Container Registry'
     currentWorkingDirectory: '$(Build.SourcesDirectory)'
     dockerComposeFile: '**/docker-compose.yml'
-    action: 'Run service tests in Docker'
+    action: 'Run a Docker Compose command'
     dockerComposeCommand: 'up'
     arguments: '--abort-on-container-exit'
