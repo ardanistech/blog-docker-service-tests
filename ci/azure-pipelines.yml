@@ -1,0 +1,74 @@
+name: 'Ardanis Dockerized Service Tests Pipeline'
+
+trigger:
+  branches:
+    include:
+      - master
+
+variables:
+  solution: 'src/*.sln'
+  azureServiceConnection: 'Superdrug Azure Connection'
+  buildPlatform: 'Any CPU'
+  buildConfiguration: 'Release'
+  retailer: 'sd'
+  project_name: 'od'
+  OdDbContext: 'Server=tcp:innodel-db-dev.database.windows.net,1433;Initial Catalog=sql-orderdeliver-dev;Persist Security Info=False;User ID=innodel-db-admin;Password=Superstrongpassword1;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;'
+  'elmah:sql': 'Server=tcp:innodel-db-dev.database.windows.net,1433;Initial Catalog=sql-orderdeliver-dev;Persist Security Info=False;User ID=innodel-db-admin;Password=Superstrongpassword1;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;'
+
+stages:
+  - stage: Build
+    jobs: 
+      - job: Build
+        pool: 'AzureAgents'
+        continueOnError: false
+        steps:
+          - task: NuGetToolInstaller@1
+          - task: NuGetCommand@2
+            inputs: 
+              restoreSolution: '$(Solution)'
+          - task: VSBuild@1
+            inputs:
+              solution: '$(solution)'
+              msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactStagingDirectory)"'
+              platform: '$(buildPlatform)'
+              configuration: '$(buildConfiguration)'
+          - task: VSTest@2
+            inputs:
+              platform: '$(buildPlatform)'
+              configuration: '$(buildConfiguration)'
+              testAssemblyVer2: '**\*Unit.dll'
+          - task: PublishBuildArtifacts@1
+            condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+            displayName: 'Publish Artifact: WebApi'
+            inputs:
+              ArtifactName: WebApi
+  - stage: Dev
+    condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+    pool: 'Default'
+    jobs:
+      - template: environment.yaml
+        parameters:
+          environment_name: 'dev'
+          azure_service_connection: '$(azureServiceConnection)'
+          retailer: '$(retailer)'
+          project_name: '$(project_name)'
+  - stage: UAT
+    pool: 'Default'
+    dependsOn: Dev
+    jobs:
+      - template: environment.yaml
+        parameters:
+          environment_name: 'uat'
+          azure_service_connection: '$(azureServiceConnection)'
+          retailer: '$(retailer)'
+          project_name: '$(project_name)'
+  - stage: Live
+    pool: 'Default'
+    dependsOn: UAT
+    jobs:
+      - template: environment.yaml
+        parameters:
+          environment_name: 'live'
+          azure_service_connection: '$(azureServiceConnection)'
+          retailer: '$(retailer)'
+          project_name: '$(project_name)'
