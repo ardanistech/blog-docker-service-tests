@@ -17,7 +17,7 @@ steps:
 - task: DockerCompose@0
   inputs:
     containerregistrytype: 'Container Registry'
-    currentWorkingDirectory: 'src'
+    currentWorkingDirectory: '$(Build.SourcesDirectory)'
     dockerComposeFile: '**/docker-compose.yml'
     action: 'Run service tests in Docker'
     dockerComposeCommand: 'up'
