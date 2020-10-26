@@ -21,4 +21,4 @@ steps:
     dockerComposeFile: '**/docker-compose.yml'
     action: 'Run a Docker Compose command'
     dockerComposeCommand: 'up'
-    arguments: '--abort-on-container-exit'
+    arguments: '--abort-on-container-exit --exit-code-from service_tests'
