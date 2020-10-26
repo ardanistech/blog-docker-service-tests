@@ -17,7 +17,8 @@ steps:
 - task: DockerCompose@0
   inputs:
     containerregistrytype: 'Container Registry'
-    dockerComposeFile: '**/docker-compose.yml'
+    currentWorkingDirectory: 'src'
+    dockerComposeFile: 'docker-compose.yml'
     action: 'Run service tests in Docker'
-    dockerComposeCommand: 'docker-compose up'
+    dockerComposeCommand: 'up'
     arguments: '--abort-on-container-exit'
