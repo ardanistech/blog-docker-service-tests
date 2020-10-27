@@ -1,7 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
-using System;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
-namespace ArdanisDockerizedServiceTests.WebApi.Migrations
+namespace WebApi.Migrations
 {
     public partial class FirstMigration : Migration
     {
@@ -12,7 +13,7 @@ namespace ArdanisDockerizedServiceTests.WebApi.Migrations
                 columns: table => new
                 {
                     ExpenseId = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     ExternalId = table.Column<Guid>(nullable: false),
                     Description = table.Column<string>(nullable: true),
                     Amount = table.Column<decimal>(nullable: false),

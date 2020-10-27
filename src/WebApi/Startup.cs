@@ -28,7 +28,7 @@ namespace ArdanisDockerizedServiceTests.WebApi
             services.AddControllers();
             services.AddSwaggerGen();
             services.AddDbContext<ExpensesContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("db")));
+                options.UseNpgsql(Configuration.GetConnectionString("db")));
             RegisterAzureStorageDependencies(services);
         }
 

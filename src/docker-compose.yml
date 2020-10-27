@@ -1,16 +1,12 @@
 version: "3.8"
 services:
 
-  sqlserver:
-    image: mcr.microsoft.com/mssql/server:2019-latest
-    ports:
-      - "1433:1433"
-    environment:
-      ACCEPT_EULA: Y
-      SA_PASSWORD: odinsbeard321!
-      MSSQL_PID: Express
-    networks:
-      backend:
+  db:
+    image: postgres:latest
+    ports: 
+      - 5432:5432
+    environment: 
+      POSTGRES_PASSWORD: 12345678
 
   azure-blob-storage:
     image: mcr.microsoft.com/azure-storage/azurite
@@ -26,24 +22,20 @@ services:
       - /tmp
       - -d
       - /tmp/debug.log
-    networks:
-      backend:
-        ipv4_address: 10.6.0.3
 
   api:
     build:
       context: .
       dockerfile: WebApi.Dockerfile
     ports: 
-      - 8081:57893
+      - 57893:57893
     environment: 
-      "EnvVars_ConnectionStrings:db": "Server=sqlserver;Database=expenses;User Id=sa;Password=odinsbeard321!;"
-      "EnvVars_ConnectionStrings:storage": "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://10.6.0.3:10000/devstoreaccount1;"
-    networks:
-      backend:
+      "EnvVars_ConnectionStrings:db": "User ID=postgres;Password=12345678;Host=db;Port=5432;Database=Expenses"
+      "EnvVars_ConnectionStrings:storage": "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://azure-blob-storage:10000/devstoreaccount1;"
     depends_on: 
-      - sqlserver
+      - db
       - azure-blob-storage
+    restart: on-failure
   
   service_tests:
     build:
@@ -51,14 +43,5 @@ services:
       dockerfile: ServiceTests.Dockerfile
     environment: 
       "EnvVars_webapi_url": "http://api:57893"
-    networks:
-      backend:
     depends_on: 
       - api
-  
-    
-networks:
-  backend:
-    ipam:
-      config:
-        - subnet: 10.6.0.0/16
