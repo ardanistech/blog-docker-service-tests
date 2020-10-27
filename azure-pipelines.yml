@@ -20,5 +20,6 @@ steps:
     currentWorkingDirectory: '$(Build.SourcesDirectory)'
     dockerComposeFile: '**/docker-compose.yml'
     action: 'Run a Docker Compose command'
-    dockerComposeCommand: 'up --abort-on-container-exit --exit-code-from service_tests'
+    abortOnContainerExit: true
+    dockerComposeCommand: 'up --exit-code-from service_tests'
     arguments: ''
