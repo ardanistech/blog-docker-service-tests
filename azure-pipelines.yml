@@ -9,17 +9,24 @@ trigger:
 pool:
   vmImage: 'ubuntu-latest'
 
-steps:
-- task: DotNetCoreCLI@2
-  inputs:
-    command: 'build'
-    workingDirectory: 'src'
-- task: DockerCompose@0
-  inputs:
-    containerregistrytype: 'Container Registry'
-    currentWorkingDirectory: '$(Build.SourcesDirectory)'
-    dockerComposeFile: '**/docker-compose.yml'
-    action: 'Run a Docker Compose command'
-    abortOnContainerExit: true
-    dockerComposeCommand: 'up --exit-code-from service_tests'
-    arguments: ''
+stages:
+  - stage: 'Build_and_Test'
+    jobs:
+      - job: Build
+        steps:
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: 'build'
+              workingDirectory: 'src'
+      - job: 'Unit_Test'
+      - job: 'Service_Test'
+        steps:
+          - task: DockerCompose@0
+            inputs:
+              containerregistrytype: 'Container Registry'
+              currentWorkingDirectory: '$(Build.SourcesDirectory)'
+              dockerComposeFile: '**/docker-compose.yml'
+              action: 'Run a Docker Compose command'
+              abortOnContainerExit: true
+              dockerComposeCommand: 'up --exit-code-from service_tests'
+              arguments: ''
