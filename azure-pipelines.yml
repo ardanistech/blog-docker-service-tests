@@ -1,8 +1,3 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
-
 trigger:
 - master
 
@@ -18,7 +13,7 @@ stages:
             inputs:
               command: 'build'
               workingDirectory: 'src'
-      - job: 'Unit_Test'
+      - job: 'Unit_Test' #Place holder for any unit tests
       - job: 'Service_Test'
         steps:
           - task: DockerCompose@0
